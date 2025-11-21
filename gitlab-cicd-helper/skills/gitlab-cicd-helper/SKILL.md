@@ -174,10 +174,32 @@ cd /path/to/repo
   --pipeline 12345 --auto --show-jobs
 ```
 
-**Watch pipeline until completion:**
+**Watch pipeline until completion (with auto-enabled progress tracking):**
 ```bash
 ./scripts/monitor_status.py \
   --pipeline 12345 --auto --watch --interval 10
+# Watch mode automatically shows:
+# - Progress summary (completion %, job counts by status)
+# - Currently running jobs with durations
+# - Recently changed jobs (status transitions)
+# - Full job list (--show-jobs auto-enabled)
+```
+
+**Watch Mode Output Example:**
+```
+Pipeline #12345
+Status: running
+Progress: 9/90 jobs (10%)
+   ▶️ 2 running | ✅ 3 success | ❌ 6 failed | ⚙️ 13 manual | ◯ 66 created
+
+🔄 Currently Running (2):
+   ▶️ ca-cert:integration-test [test-docker] (2m 30s)
+   ▶️ ca-cert:volume-propagation [test-docker] (2m 32s)
+
+✨ Recently Changed (6):
+   ❌ ca-cert:ubuntu → failed (was ▶️ running)
+   ❌ ca-cert:golang → failed (was ▶️ running)
+   ...
 ```
 
 **Show full pipeline structure (NEW - uses PipelineAnalyzer):**
@@ -322,9 +344,14 @@ PIPELINE_OUTPUT=$(./scripts/trigger_pipeline.py --auto --ref main)
 PIPELINE_ID=$(echo "$PIPELINE_OUTPUT" | grep -oP 'Pipeline #\d+ \(ID: \K\d+')
 echo "Pipeline ID: $PIPELINE_ID"
 
-# 2. Monitor with watch mode
+# 2. Monitor with watch mode (auto-shows progress, running jobs, status changes)
 ./scripts/monitor_status.py \
   --pipeline $PIPELINE_ID --auto --watch
+# Watch mode automatically provides:
+# - Real-time progress tracking (completion %, status breakdown)
+# - Currently running jobs with execution durations
+# - Recently changed jobs (status transitions between refreshes)
+# - Full job visibility (no need for --show-jobs flag)
 ```
 
 ### Workflow 2: Trigger with Variables and Launch Manual Jobs
@@ -372,9 +399,9 @@ sleep 10
 ./scripts/launch_jobs.py \
   --pipeline $PIPELINE_ID --batch --pattern "YOUR-PATTERN-*"
 
-# 4. Monitor progress
+# 4. Monitor progress (watch mode auto-enables job display and progress tracking)
 ./scripts/monitor_status.py \
-  --pipeline $PIPELINE_ID --auto --show-jobs --watch
+  --pipeline $PIPELINE_ID --auto --watch
 ```
 
 **Common Pattern Examples:**
@@ -503,9 +530,11 @@ diff \
 - Always verify job list before batch launch (shows count and names)
 
 ### Monitoring
-- Use `--watch` mode for long-running pipelines/jobs
+- Use `--watch` mode for long-running pipelines/jobs (automatically shows progress, running jobs, and status changes)
+- `--show-jobs` flag is auto-enabled in watch mode (no need to specify both)
 - Set appropriate `--interval` (default: 5s) to avoid API rate limits
 - Use Ctrl+C to stop watch mode gracefully
+- Watch mode provides real-time progress tracking with completion percentage and status breakdown
 
 ### Log Analysis
 - Use `--tail N` to limit output for long logs

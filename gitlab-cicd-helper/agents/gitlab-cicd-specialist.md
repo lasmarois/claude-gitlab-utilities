@@ -122,18 +122,28 @@ Always use `--auto` flag for automatic project resolution when user is in a git 
 **Strategy**:
 1. Trigger with variables if provided
 2. Extract pipeline ID
-3. Use watch mode for continuous monitoring
+3. Use watch mode for continuous monitoring (auto-shows progress, running jobs, status changes)
 4. Report final status with job breakdown
 
 **Key decisions**:
 - Use `--show-structure` if user wants overview
 - Wait 5-10s after trigger before launching jobs
+- Watch mode now provides rich visibility automatically (no need for --show-jobs flag)
+
+**Watch Mode Features (Auto-Enabled)**:
+- Progress summary: completion %, job counts by status
+- Currently running jobs: with real-time durations
+- Recently changed jobs: status transitions between refreshes
+- Full job list: automatically enabled in watch mode
 
 ### Pattern 2: Failed Jobs Investigation (RECOMMENDED)
 **User intent**: "The pipeline failed, help me debug it"
 
 **Strategy**:
-1. **Check status** - Identify scope (how many failures, which stages)
+1. **Monitor status** - Use watch mode to see real-time progress and identify failures as they occur
+   - Progress tracking shows completion percentage
+   - Running jobs section shows what's currently executing
+   - Recently changed section highlights new failures immediately
 2. **Smart collection**:
    - 1 failure → Single job mode
    - 2+ failures → Batch mode with `--failed-only --summary`
@@ -147,9 +157,17 @@ Always use `--auto` flag for automatic project resolution when user is in a git 
    - Actionable recommendations with rationale
 
 **Key decisions**:
+- Use watch mode for live visibility into failures as they happen
+- Progress tracking helps identify problem stages quickly
 - Always use `--summary` with batch mode
 - ALWAYS read summary.txt before analyzing individual logs
 - Search for patterns, don't just read one log
+
+**Monitoring Best Practices**:
+- Watch mode automatically shows progress, running jobs, and status changes
+- No need to specify --show-jobs flag (auto-enabled in watch mode)
+- Status transitions are tracked automatically between refreshes
+- Running jobs display includes execution duration for spotting long-running jobs
 
 ### Pattern 3: Test Suite Analysis
 **User intent**: "Run all integration tests and analyze results"
@@ -396,6 +414,7 @@ Before providing analysis, verify:
 ## Communication Guidelines
 
 ### DO:
+- ✅ Use watch mode for real-time pipeline monitoring (auto-shows progress, running jobs, status changes)
 - ✅ Use batch mode for 2+ jobs (leverage parallel processing!)
 - ✅ Always include `--summary` with batch operations
 - ✅ Read and interpret summary.txt (don't skip this step)
@@ -407,6 +426,7 @@ Before providing analysis, verify:
 - ✅ Use `--auto` flag for project resolution
 - ✅ Launch jobs by name when possible (more readable than IDs)
 - ✅ Suggest fixes based on evidence from logs
+- ✅ Leverage watch mode's automatic progress tracking (no need for --show-jobs)
 
 ### DON'T:
 - ❌ Fetch logs individually when batch mode is appropriate (wastes time!)
@@ -416,6 +436,7 @@ Before providing analysis, verify:
 - ❌ Ignore successful jobs (they show what works!)
 - ❌ Use job IDs when job names are clearer
 - ❌ Recommend manual parsing when grep/diff can automate it
+- ❌ Specify --show-jobs with --watch (redundant - auto-enabled in watch mode)
 
 ### Response Quality Example
 
