@@ -132,16 +132,17 @@ def format_job_status_emoji(status):
     return emojis.get(status, '❓')
 
 
-def monitor_pipeline(analyzer, pipeline_id, show_jobs=False):
+def monitor_pipeline(analyzer, pipeline_id, show_jobs=False, previous_jobs=None):
     """Monitor pipeline status using PipelineAnalyzer.
 
     Args:
         analyzer: PipelineAnalyzer instance
         pipeline_id: Pipeline ID
         show_jobs: Show jobs list
+        previous_jobs: Dict of previous job statuses for change tracking
 
     Returns:
-        Pipeline status string
+        Tuple of (pipeline_status, current_jobs_dict)
     """
     pipeline = analyzer.get_pipeline(pipeline_id)
 
@@ -155,10 +156,82 @@ def monitor_pipeline(analyzer, pipeline_id, show_jobs=False):
     print(f"Updated: {pipeline.updated_at}")
     print(f"🔗 {pipeline.web_url}")
 
+    # Get pipeline summary for progress stats
+    summary = analyzer.get_pipeline_summary(pipeline_id)
+    jobs_by_status = summary.get('jobs_by_status', {})
+    total_jobs = summary.get('total_jobs', 0)
+
+    # Calculate completion info
+    completed_jobs = jobs_by_status.get('success', 0) + jobs_by_status.get('failed', 0) + jobs_by_status.get('canceled', 0) + jobs_by_status.get('skipped', 0)
+    completion_pct = (completed_jobs / total_jobs * 100) if total_jobs > 0 else 0
+
+    # Show progress summary
+    print(f"\n📊 Progress: {completed_jobs}/{total_jobs} jobs ({completion_pct:.0f}%)")
+
+    # Show job counts by status
+    status_line_parts = []
+    if jobs_by_status.get('running', 0) > 0:
+        status_line_parts.append(f"▶️  {jobs_by_status['running']} running")
+    if jobs_by_status.get('pending', 0) > 0:
+        status_line_parts.append(f"⏳ {jobs_by_status['pending']} pending")
+    if jobs_by_status.get('success', 0) > 0:
+        status_line_parts.append(f"✅ {jobs_by_status['success']} success")
+    if jobs_by_status.get('failed', 0) > 0:
+        status_line_parts.append(f"❌ {jobs_by_status['failed']} failed")
+    if jobs_by_status.get('manual', 0) > 0:
+        status_line_parts.append(f"⚙️  {jobs_by_status['manual']} manual")
+    if jobs_by_status.get('created', 0) > 0:
+        status_line_parts.append(f"◯ {jobs_by_status['created']} created")
+
+    if status_line_parts:
+        print(f"   {' | '.join(status_line_parts)}")
+
+    # Get all jobs for tracking and display
+    all_jobs = analyzer.get_all_jobs(pipeline_id)
+
+    # Build current jobs dict for tracking
+    current_jobs = {job.id: {'name': job.name, 'status': job.status} for job in all_jobs}
+
+    # Detect running jobs
+    running_jobs = [job for job in all_jobs if job.status == 'running']
+
+    # Detect changed jobs (if we have previous state)
+    changed_jobs = []
+    if previous_jobs:
+        for job in all_jobs:
+            if job.id in previous_jobs:
+                prev_status = previous_jobs[job.id]['status']
+                if prev_status != job.status:
+                    changed_jobs.append({
+                        'job': job,
+                        'prev_status': prev_status,
+                        'current_status': job.status
+                    })
+
+    # Show running jobs prominently
+    if running_jobs:
+        print(f"\n🔄 Currently Running ({len(running_jobs)}):")
+        for job in running_jobs:
+            # Try to get duration if available
+            duration_str = ""
+            if hasattr(job, 'duration') and job.duration:
+                minutes = int(job.duration) // 60
+                seconds = int(job.duration) % 60
+                duration_str = f" ({minutes}m {seconds}s)"
+            print(f"   ▶️  {job.name} [{job.stage}]{duration_str}")
+
+    # Show recently changed jobs
+    if changed_jobs:
+        print(f"\n✨ Recently Changed ({len(changed_jobs)}):")
+        for change in changed_jobs:
+            job = change['job']
+            prev_emoji = format_job_status_emoji(change['prev_status'])
+            curr_emoji = format_job_status_emoji(change['current_status'])
+            print(f"   {curr_emoji} {job.name} → {change['current_status']} (was {prev_emoji} {change['prev_status']})")
+
     # Show jobs if requested
     if show_jobs:
-        # Use proper pagination to get ALL jobs
-        all_jobs = analyzer.get_all_jobs(pipeline_id)
+        # Use proper pagination to get ALL jobs (already fetched above)
         jobs_by_stage = analyzer.get_jobs_by_stage(pipeline_id)
 
         print(f"\n📋 Jobs ({len(all_jobs)} total):")
@@ -170,7 +243,7 @@ def monitor_pipeline(analyzer, pipeline_id, show_jobs=False):
 
     print(f"{'='*60}\n")
 
-    return pipeline.status
+    return pipeline.status, current_jobs
 
 
 def monitor_job(project, job_id):
@@ -298,6 +371,7 @@ def main():
             if args.watch:
                 print(f"👁️  Watching pipeline {args.pipeline} (refresh every {args.interval}s, Ctrl+C to stop)\n")
                 iteration = 0
+                previous_jobs = None
                 while True:
                     if iteration > 0:
                         # Clear screen for better readability
@@ -305,16 +379,18 @@ def main():
                         print(f"Refresh #{iteration} at {time.strftime('%H:%M:%S')}")
                         print("="*60 + "\n")
 
-                    status = monitor_pipeline(analyzer, args.pipeline, show_jobs=args.show_jobs)
+                    status, current_jobs = monitor_pipeline(analyzer, args.pipeline, show_jobs=args.show_jobs or args.watch, previous_jobs=previous_jobs)
 
                     if is_terminal_status(status):
                         print(f"\n✅ Pipeline reached terminal status: {status}")
                         break
 
+                    # Update previous_jobs for next iteration
+                    previous_jobs = current_jobs
                     iteration += 1
                     time.sleep(args.interval)
             else:
-                status = monitor_pipeline(analyzer, args.pipeline, show_jobs=args.show_jobs)
+                status, _ = monitor_pipeline(analyzer, args.pipeline, show_jobs=args.show_jobs)
 
         elif args.job:
             if args.watch:
