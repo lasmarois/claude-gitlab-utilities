@@ -33,43 +33,43 @@ PAT_TOKEN="glpat-xxxxxxxxxxxxxxxxxxxxx"      # From User Settings → Access Tok
 ### Trigger a Pipeline
 ```bash
 cd /path/to/your/repo
-./skills/gitlab-cicd-helper/scripts/trigger_pipeline.py --auto --ref main
+./skills/managing-gitlab-pipelines/scripts/trigger_pipeline.py --auto --ref main
 ```
 
 ### Launch Manual Jobs
 ```bash
 # Launch specific job
-./skills/gitlab-cicd-helper/scripts/launch_jobs.py \
+./skills/managing-gitlab-pipelines/scripts/launch_jobs.py \
   --pipeline 12345 --job-name "deploy-production"
 
 # Launch all manual jobs matching pattern
-./skills/gitlab-cicd-helper/scripts/launch_jobs.py \
+./skills/managing-gitlab-pipelines/scripts/launch_jobs.py \
   --pipeline 12345 --batch --pattern "ca-cert:*"
 ```
 
 ### Monitor Pipeline
 ```bash
 # One-time status check
-./skills/gitlab-cicd-helper/scripts/monitor_status.py \
+./skills/managing-gitlab-pipelines/scripts/monitor_status.py \
   --pipeline 12345 --auto --show-jobs
 
 # Watch until completion
-./skills/gitlab-cicd-helper/scripts/monitor_status.py \
+./skills/managing-gitlab-pipelines/scripts/monitor_status.py \
   --pipeline 12345 --auto --watch
 ```
 
 ### Get Job Logs
 ```bash
 # Full logs
-./skills/gitlab-cicd-helper/scripts/get_logs.py \
+./skills/managing-gitlab-pipelines/scripts/get_logs.py \
   --job 67890 --auto
 
 # Last 50 lines
-./skills/gitlab-cicd-helper/scripts/get_logs.py \
+./skills/managing-gitlab-pipelines/scripts/get_logs.py \
   --job 67890 --auto --tail 50
 
 # Filter for errors
-./skills/gitlab-cicd-helper/scripts/get_logs.py \
+./skills/managing-gitlab-pipelines/scripts/get_logs.py \
   --job 67890 --auto --grep "ERROR" -i
 ```
 
@@ -79,7 +79,7 @@ cd /path/to/your/repo
 cd /path/to/repo
 
 # 1. Trigger pipeline
-PIPELINE_OUTPUT=$(./skills/gitlab-cicd-helper/scripts/trigger_pipeline.py \
+PIPELINE_OUTPUT=$(./skills/managing-gitlab-pipelines/scripts/trigger_pipeline.py \
   --auto --ref main --var ENVIRONMENT=staging)
 echo "$PIPELINE_OUTPUT"
 
@@ -91,11 +91,11 @@ echo "Pipeline ID: $PIPELINE_ID"
 sleep 10
 
 # 3. Launch deployment jobs
-./skills/gitlab-cicd-helper/scripts/launch_jobs.py \
+./skills/managing-gitlab-pipelines/scripts/launch_jobs.py \
   --pipeline $PIPELINE_ID --batch --pattern "deploy-*"
 
 # 4. Monitor until complete
-./skills/gitlab-cicd-helper/scripts/monitor_status.py \
+./skills/managing-gitlab-pipelines/scripts/monitor_status.py \
   --pipeline $PIPELINE_ID --auto --watch
 ```
 
@@ -185,10 +185,10 @@ chmod 600 ~/.claude/.cicd-tokens
 Test CA certificate volume mounts across distributions:
 ```bash
 cd /home/nmarois/gits/runner-troubleshooter
-PIPELINE_ID=$(./skills/gitlab-cicd-helper/scripts/trigger_pipeline.py \
+PIPELINE_ID=$(./skills/managing-gitlab-pipelines/scripts/trigger_pipeline.py \
   --auto --ref main | grep -oP 'Pipeline #\d+ \(ID: \K\d+')
 sleep 10
-./skills/gitlab-cicd-helper/scripts/launch_jobs.py \
+./skills/managing-gitlab-pipelines/scripts/launch_jobs.py \
   --pipeline $PIPELINE_ID --batch --pattern "ca-cert:*"
 ```
 
@@ -196,10 +196,10 @@ sleep 10
 Deploy to staging:
 ```bash
 cd /path/to/project
-PIPELINE_ID=$(./skills/gitlab-cicd-helper/scripts/trigger_pipeline.py \
+PIPELINE_ID=$(./skills/managing-gitlab-pipelines/scripts/trigger_pipeline.py \
   --auto --ref main --var ENVIRONMENT=staging | grep -oP 'Pipeline #\d+ \(ID: \K\d+')
 sleep 10
-./skills/gitlab-cicd-helper/scripts/launch_jobs.py \
+./skills/managing-gitlab-pipelines/scripts/launch_jobs.py \
   --pipeline $PIPELINE_ID --job-name "deploy-staging"
 ```
 
@@ -207,11 +207,11 @@ sleep 10
 Find and analyze failed jobs:
 ```bash
 # Check pipeline status
-./skills/gitlab-cicd-helper/scripts/monitor_status.py \
+./skills/managing-gitlab-pipelines/scripts/monitor_status.py \
   --pipeline 12345 --auto --show-jobs
 
 # Get logs for failed job
-./skills/gitlab-cicd-helper/scripts/get_logs.py \
+./skills/managing-gitlab-pipelines/scripts/get_logs.py \
   --job 67890 --auto --tail 100 --grep "ERROR"
 ```
 
@@ -259,7 +259,7 @@ Find and analyze failed jobs:
 ├── .claude-plugin/
 │   └── plugin.json               # Plugin metadata
 ├── skills/
-│   └── gitlab-cicd-helper/
+│   └── managing-gitlab-pipelines/
 │       ├── SKILL.md              # Claude skill instructions
 │       └── scripts/
 │           ├── trigger_pipeline.py       # Pipeline triggering

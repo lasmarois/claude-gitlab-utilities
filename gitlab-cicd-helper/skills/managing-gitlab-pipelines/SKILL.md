@@ -1,6 +1,6 @@
 ---
-name: gitlab-cicd-helper
-description: Trigger GitLab pipelines, launch manual jobs, monitor status, and retrieve logs. Use when user needs CI/CD operations, pipeline automation, or deployment workflows. Keywords: pipeline, trigger, manual job, CI/CD, deploy, status, logs, trace, GitLab
+name: managing-gitlab-pipelines
+description: Manages GitLab CI/CD pipelines through automated triggering, batch job launching, real-time status monitoring, and parallel log collection. Supports pattern matching for selective operations, watch mode with progress tracking, and systematic failure analysis. Use for pipeline automation, deployment workflows, CI/CD troubleshooting, batch operations, and comprehensive log analysis across multiple jobs.
 allowed-tools: Bash, Read
 ---
 
