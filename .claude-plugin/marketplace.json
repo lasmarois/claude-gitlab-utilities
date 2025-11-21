@@ -1,8 +1,8 @@
 {
   "name": "claude-gitlab-utilities",
   "owner": {
-    "name": "nmarois",
-    "email": "nmarois@example.com"
+    "name": "Nicolas Marois",
+    "email": "mail@nicomarois.com"
   },
   "metadata": {
     "description": "GitLab automation utilities for Claude Code - CI/CD operations, pipeline management, and DevOps workflows",

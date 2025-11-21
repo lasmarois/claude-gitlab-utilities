@@ -1,322 +1,171 @@
 # GitLab CI/CD Helper Plugin
 
-A comprehensive Claude Code plugin for GitLab CI/CD operations via API. Trigger pipelines, launch manual jobs, monitor status, and retrieve logs - all from your terminal through Claude.
+Claude Code plugin for GitLab CI/CD automation via python-gitlab. Trigger pipelines, launch manual jobs, monitor status with real-time progress tracking, and retrieve logs.
 
 ## Features
 
-- 🚀 **Pipeline Triggering**: Start pipelines on any branch with variables
-- ⚙️ **Manual Job Launching**: Trigger manual/delayed jobs individually or in batch
-- 👁️ **Status Monitoring**: Real-time pipeline and job status with watch mode
-- 📝 **Log Retrieval**: Download and filter job traces
-- 🔍 **Auto Project Resolution**: Automatically detects project ID from git remotes
-- 🔐 **Secure Token Management**: Centralized token storage with validation
+- **Pipeline Triggering**: Start pipelines on any branch with variables
+- **Batch Job Launching**: Trigger manual/delayed jobs by pattern or individually
+- **Real-time Monitoring**: Watch pipelines with job progress tracking (%, ETA, runtime)
+- **Pattern-aware Watch**: Automatically terminates when pattern-matched jobs complete
+- **Log Retrieval**: Download and filter job traces with grep/tail support
+- **Auto Project Resolution**: Detects project ID from git remotes
+- **Secure Token Management**: Uses standard GitLab authentication (GITLAB_TOKEN, .netrc, .git-credentials)
 
 ## Installation
 
-1. **Plugin is already installed** at: `~/.claude/plugins/custom/gitlab-cicd-helper/`
+Installed via Claude Code plugin marketplace. See root README for setup details.
 
-2. **Create token file**:
+**Authentication**: Configure using standard GitLab authentication methods:
+- Environment variable: `GITLAB_TOKEN` (required for API operations)
+- Git credentials: `~/.netrc` or `~/.git-credentials`
+- Optional: `.gitlab-trigger-token` in project root (for pipeline triggering)
+- See [Authentication Guide](../README.md#authentication) for details
+
+## How It Works
+
+This plugin provides two components that work together:
+
+### Skill: managing-gitlab-pipelines
+Python-based toolkit providing core GitLab API operations:
+- Pipeline triggering with variables
+- Manual job launching (single or batch)
+- Real-time status monitoring with watch mode
+- Job log retrieval and filtering
+
+### Agent: gitlab-cicd-specialist
+Intelligent orchestrator for complex multi-step workflows:
+- Automatically activates for phrases like "trigger and monitor", "debug failed jobs", "analyze test failures"
+- Coordinates multi-step operations (trigger → launch → monitor → analyze)
+- Provides strategic guidance and root cause analysis
+- Leverages batch operations for efficient parallel processing
+
+## Usage with Claude Code
+
+### Simple Operations (Skill)
+Ask Claude to perform individual CI/CD operations:
+- "Trigger a pipeline on branch develop"
+- "Show me the status of pipeline 12345"
+- "Get logs for job 67890"
+
+### Complex Workflows (Agent)
+Ask for orchestrated multi-step workflows:
+- "Trigger the pipeline and monitor until complete"
+- "Launch all CA cert tests and watch for failures"
+- "Debug why the test stage is failing"
+- "Analyze all failed jobs in pipeline 12345"
+
+Claude automatically chooses the right component based on your request.
+
+## Workflow Examples
+
+### Trigger and Monitor Pipeline
 ```bash
-touch ~/.claude/.cicd-tokens
-chmod 600 ~/.claude/.cicd-tokens
+# Trigger pipeline with variable
+./scripts/trigger_pipeline.py --auto --ref main --var ENVIRONMENT=staging
+
+# Monitor with real-time updates
+./scripts/monitor_status.py --pipeline 12345 --auto --watch --show-jobs
 ```
 
-3. **Add your GitLab tokens** to `~/.claude/.cicd-tokens`:
+### Batch Launch Pattern-Matched Jobs
 ```bash
-# GitLab CI/CD Tokens
-TRIGGER_TOKEN="glptt-xxxxxxxxxxxxxxxxxxxxx"  # From Project Settings → CI/CD → Pipeline Triggers
-PAT_TOKEN="glpat-xxxxxxxxxxxxxxxxxxxxx"      # From User Settings → Access Tokens (api scope)
+# Launch all CA cert test jobs
+./scripts/launch_jobs.py --pipeline 12345 --batch --pattern "ca-cert:*"
+
+# Monitor will automatically terminate when pattern-matched jobs complete
+./scripts/monitor_status.py --pipeline 12345 --auto --watch --pattern "ca-cert:*"
 ```
 
-## Quick Start
-
-### Trigger a Pipeline
-```bash
-cd /path/to/your/repo
-./skills/managing-gitlab-pipelines/scripts/trigger_pipeline.py --auto --ref main
-```
-
-### Launch Manual Jobs
-```bash
-# Launch specific job
-./skills/managing-gitlab-pipelines/scripts/launch_jobs.py \
-  --pipeline 12345 --job-name "deploy-production"
-
-# Launch all manual jobs matching pattern
-./skills/managing-gitlab-pipelines/scripts/launch_jobs.py \
-  --pipeline 12345 --batch --pattern "ca-cert:*"
-```
-
-### Monitor Pipeline
-```bash
-# One-time status check
-./skills/managing-gitlab-pipelines/scripts/monitor_status.py \
-  --pipeline 12345 --auto --show-jobs
-
-# Watch until completion
-./skills/managing-gitlab-pipelines/scripts/monitor_status.py \
-  --pipeline 12345 --auto --watch
-```
-
-### Get Job Logs
-```bash
-# Full logs
-./skills/managing-gitlab-pipelines/scripts/get_logs.py \
-  --job 67890 --auto
-
-# Last 50 lines
-./skills/managing-gitlab-pipelines/scripts/get_logs.py \
-  --job 67890 --auto --tail 50
-
-# Filter for errors
-./skills/managing-gitlab-pipelines/scripts/get_logs.py \
-  --job 67890 --auto --grep "ERROR" -i
-```
-
-## Complete Workflow Example
-
-```bash
-cd /path/to/repo
-
-# 1. Trigger pipeline
-PIPELINE_OUTPUT=$(./skills/managing-gitlab-pipelines/scripts/trigger_pipeline.py \
-  --auto --ref main --var ENVIRONMENT=staging)
-echo "$PIPELINE_OUTPUT"
-
-# Extract pipeline ID
-PIPELINE_ID=$(echo "$PIPELINE_OUTPUT" | grep -oP 'Pipeline #\d+ \(ID: \K\d+')
-echo "Pipeline ID: $PIPELINE_ID"
-
-# 2. Wait for pipeline initialization
-sleep 10
-
-# 3. Launch deployment jobs
-./skills/managing-gitlab-pipelines/scripts/launch_jobs.py \
-  --pipeline $PIPELINE_ID --batch --pattern "deploy-*"
-
-# 4. Monitor until complete
-./skills/managing-gitlab-pipelines/scripts/monitor_status.py \
-  --pipeline $PIPELINE_ID --auto --watch
-```
-
-## Scripts Reference
-
-### trigger_pipeline.py
-Trigger a new pipeline with optional variables.
-
-**Options**:
-- `--auto` - Auto-resolve project from git remote
-- `--project ID` - Explicit project ID or path
-- `--project-path PATH` - Project path (e.g., 'group/project')
-- `--ref BRANCH` - Branch or tag name (default: main)
-- `--var KEY=VALUE` - Pipeline variables (repeatable)
-
-### launch_jobs.py
-Launch manual or created jobs.
-
-**Options**:
-- `--pipeline ID` - Pipeline ID (required)
-- `--job-id ID` - Specific job ID to launch
-- `--job-name NAME` - Job name to launch
-- `--batch` - Launch multiple jobs
-- `--pattern PATTERN` - Job name pattern (e.g., 'deploy-*', 'ca-cert:*')
-- `--status STATUS` - Filter by job status (default: manual)
-- `--var KEY=VALUE` - Job variables (repeatable)
-
-### monitor_status.py
-Monitor pipeline or job status.
-
-**Options**:
-- `--pipeline ID` - Monitor pipeline
-- `--job ID` - Monitor job
-- `--show-jobs` - Show jobs list for pipelines
-- `--watch` - Auto-refresh until completion
-- `--interval SECONDS` - Refresh interval for watch mode (default: 5)
-
-### get_logs.py
-Retrieve job logs/traces.
-
-**Options**:
-- `--job ID` - Job ID (required)
-- `--tail N` - Show only last N lines
-- `--grep PATTERN` - Filter lines matching regex pattern
-- `--ignore-case, -i` - Case-insensitive pattern matching
-- `--context N, -C N` - Show N lines of context around matches
-- `--line-numbers, -n` - Show line numbers
-- `--output FILE, -o FILE` - Save logs to file
-
-## Token Setup
-
-### Creating Tokens in GitLab
-
-**Trigger Token** (for triggering pipelines):
-1. Go to your GitLab project
-2. Settings → CI/CD → Pipeline triggers
-3. Add trigger → Give it a description
-4. Copy the token (starts with `glptt-`)
-
-**Personal Access Token** (for API operations):
-1. Go to GitLab User Settings
-2. Access Tokens
-3. Create token with:
-   - Name: "Claude CI/CD Operations"
-   - Scopes: `api` (full API access)
-   - Expiration: Set according to your policy
-4. Copy the token (starts with `glpat-`)
-
-### Token File Format
-```bash
-# ~/.claude/.cicd-tokens
-TRIGGER_TOKEN="glptt-xxxxxxxxxxxxxxxxxxxxx"
-PAT_TOKEN="glpat-xxxxxxxxxxxxxxxxxxxxx"
-
-# Optional: Override GitLab URL (defaults to gitlab.pitchblackcompany.com)
-# GITLAB_URL="https://gitlab.example.com"
-```
-
-**Important**: Set file permissions to `600`:
-```bash
-chmod 600 ~/.claude/.cicd-tokens
-```
-
-## Common Use Cases
-
-### CA Certificate Testing
-Test CA certificate volume mounts across distributions:
-```bash
-cd /home/nmarois/gits/runner-troubleshooter
-PIPELINE_ID=$(./skills/managing-gitlab-pipelines/scripts/trigger_pipeline.py \
-  --auto --ref main | grep -oP 'Pipeline #\d+ \(ID: \K\d+')
-sleep 10
-./skills/managing-gitlab-pipelines/scripts/launch_jobs.py \
-  --pipeline $PIPELINE_ID --batch --pattern "ca-cert:*"
-```
-
-### Deployment Workflow
-Deploy to staging:
-```bash
-cd /path/to/project
-PIPELINE_ID=$(./skills/managing-gitlab-pipelines/scripts/trigger_pipeline.py \
-  --auto --ref main --var ENVIRONMENT=staging | grep -oP 'Pipeline #\d+ \(ID: \K\d+')
-sleep 10
-./skills/managing-gitlab-pipelines/scripts/launch_jobs.py \
-  --pipeline $PIPELINE_ID --job-name "deploy-staging"
-```
-
-### Debugging Failed Jobs
-Find and analyze failed jobs:
+### Debug Failed Jobs
 ```bash
 # Check pipeline status
-./skills/managing-gitlab-pipelines/scripts/monitor_status.py \
-  --pipeline 12345 --auto --show-jobs
+./scripts/monitor_status.py --pipeline 12345 --auto --show-jobs
 
-# Get logs for failed job
-./skills/managing-gitlab-pipelines/scripts/get_logs.py \
-  --job 67890 --auto --tail 100 --grep "ERROR"
+# Get filtered logs
+./scripts/get_logs.py --job 67890 --auto --tail 100 --grep "ERROR"
+```
+
+**Note**: Scripts use `uv run --script` with inline dependencies (PEP 723). No manual pip installation required.
+
+## Script Reference
+
+### trigger_pipeline.py
+Start a pipeline with optional variables.
+
+Key options: `--auto` (resolve project from git), `--ref BRANCH`, `--var KEY=VALUE`
+
+### launch_jobs.py
+Launch manual/delayed jobs individually or by pattern.
+
+Key options: `--pipeline ID`, `--batch`, `--pattern PATTERN`, `--job-name NAME`
+
+### monitor_status.py
+Monitor pipeline/job status with real-time progress tracking.
+
+Key options: `--pipeline ID`, `--watch`, `--show-jobs`, `--pattern PATTERN` (auto-terminate when matched jobs complete)
+
+Features: Job progress (%, ETA, runtime), status tracking, pattern-aware termination
+
+### get_logs.py
+Retrieve and filter job logs.
+
+Key options: `--job ID`, `--tail N`, `--grep PATTERN`, `-i` (ignore case), `-C N` (context lines)
+
+See `./scripts/<script> --help` for complete options.
+
+## Key Capabilities
+
+### Real-time Progress Tracking
+monitor_status.py provides detailed job progress:
+- Completion percentage and ETA
+- Job runtime and duration
+- Status updates (pending, running, success, failed)
+
+### Pattern-aware Watch Mode
+Automatically terminates monitoring when all pattern-matched jobs complete:
+```bash
+# Launches ca-cert jobs and watches only those
+./scripts/launch_jobs.py --pipeline 12345 --batch --pattern "ca-cert:*"
+./scripts/monitor_status.py --pipeline 12345 --watch --pattern "ca-cert:*"
+# Exits when all ca-cert:* jobs finish
+```
+
+### Auto Project Resolution
+Detects GitLab project ID from git remotes - no manual project ID lookup needed:
+```bash
+cd /path/to/repo
+./scripts/trigger_pipeline.py --auto --ref main
 ```
 
 ## Troubleshooting
 
-### Token Validation Fails
-**Problem**: "Token file not found" or "Missing required tokens"
+**Authentication errors**: Verify GITLAB_TOKEN is set or credentials exist in .netrc/.git-credentials (see root README)
 
-**Solution**:
-1. Create the token file: `touch ~/.claude/.cicd-tokens`
-2. Set correct permissions: `chmod 600 ~/.claude/.cicd-tokens`
-3. Add both TRIGGER_TOKEN and PAT_TOKEN
-4. Verify PAT has `api` scope in GitLab
+**Project resolution fails**: Ensure you're in a git repo with GitLab remote, or use `--project ID` explicitly
 
-### Project Resolution Fails
-**Problem**: "Failed to get git remote URL"
+**No manual jobs found**: Wait 10-15 seconds after pipeline trigger for jobs to initialize
 
-**Solution**:
-1. Ensure you're in a git repository: `git status`
-2. Verify remote exists: `git remote -v`
-3. Use explicit `--project ID` if not in a git repo
-
-### No Manual Jobs Found
-**Problem**: "No manual jobs found"
-
-**Solution**:
-1. Wait 10-15 seconds after triggering pipeline
-2. Check job status first with `monitor_status.py`
-3. Try different `--status` filter (created, pending, manual)
-4. Verify pattern matches job names
-
-### API Errors (401, 403)
-**Problem**: "401 Unauthorized" or "403 Forbidden"
-
-**Solution**:
-1. Verify PAT_TOKEN has `api` scope
-2. Check if token expired (regenerate in GitLab)
-3. Ensure you have project permissions
+**Pattern not matching**: Use `--show-jobs` to list available job names and verify pattern syntax
 
 ## Architecture
 
-### Plugin Structure
-```
-~/.claude/plugins/custom/gitlab-cicd-helper/
-├── .claude-plugin/
-│   └── plugin.json               # Plugin metadata
-├── skills/
-│   └── managing-gitlab-pipelines/
-│       ├── SKILL.md              # Claude skill instructions
-│       └── scripts/
-│           ├── trigger_pipeline.py       # Pipeline triggering
-│           ├── launch_jobs.py            # Job launching
-│           ├── monitor_status.py         # Status monitoring
-│           ├── get_logs.py              # Log retrieval
-│           └── lib/
-│               ├── __init__.py
-│               ├── token_manager.py      # Token validation & loading
-│               ├── gitlab_client.py      # GitLab API wrapper
-│               ├── project_resolver.py   # Auto project ID resolution
-│               └── output_formatter.py   # Terminal output formatting
-└── README.md                     # This file
-```
+Built on python-gitlab library with modular components:
+- Token management and validation
+- GitLab API client wrapper
+- Auto project ID resolution from git remotes
+- Terminal output formatting with progress tracking
+- Pattern-aware monitoring and termination logic
 
-### Design Principles
-- **Self-contained**: No external dependencies (uses system Python3)
-- **Secure**: Tokens stored separately with restricted permissions
-- **Efficient**: Minimal API calls with smart caching
-- **User-friendly**: Beautiful terminal output with emojis and colors
-- **Auto-detection**: Resolves project IDs automatically from git
-
-## Using with Claude
-
-This plugin is designed to work seamlessly with Claude Code. Simply ask Claude to:
-
-- "Trigger a pipeline for this project"
-- "Launch the CA certificate tests"
-- "Monitor pipeline 12345"
-- "Show me the logs for job 67890"
-- "Deploy to staging"
-
-Claude will use the plugin automatically to execute your requests.
+Self-contained design with no external dependencies beyond system Python3 and python-gitlab.
 
 ## Requirements
 
 - Python 3.6+
+- python-gitlab library
 - Git (for auto project resolution)
 - GitLab instance with API access
-- Valid GitLab tokens (trigger token + PAT)
 
 ## License
 
-MIT License - Use freely in your projects
-
-## Contributing
-
-This is a custom plugin for your environment. Enhance as needed!
-
-## Support
-
-For issues or questions:
-1. Check the SKILL.md for detailed usage
-2. Verify token configuration in ~/.claude/.cicd-tokens
-3. Test scripts individually before complex workflows
-4. Check GitLab API documentation for specific operations
-
----
-
-**Happy CI/CD automating! 🚀**
+MIT License

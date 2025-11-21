@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "Comprehensive GitLab CI/CD automation plugin for triggering pipelines, launching manual jobs, monitoring status, and retrieving logs",
   "author": {
-    "name": "nmarois",
-    "email": "nmarois@example.com"
+    "name": "Nicolas Marois",
+    "email": "mail@nicomarois.com"
   },
-  "homepage": "https://github.com/nmarois/claude-gitlab-utilities",
-  "repository": "https://github.com/nmarois/claude-gitlab-utilities",
+  "homepage": "https://github.com/lasmarois/claude-gitlab-utilities",
+  "repository": "https://github.com/lasmarois/claude-gitlab-utilities",
   "keywords": [
     "gitlab",
     "ci-cd",
