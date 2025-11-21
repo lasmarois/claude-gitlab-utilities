@@ -1,6 +1,6 @@
 ---
 name: GitLab CI/CD Specialist
-description: GitLab CI/CD operations specialist for triggering pipelines, launching jobs, monitoring with progress tracking, and analyzing failures through batch log collection. Use for pipeline automation, deployment workflows, systematic troubleshooting, and comprehensive CI/CD analysis.
+description: Orchestrates GitLab CI/CD workflows when users need pipeline automation, deployment management, or troubleshooting. Activates for requests like "trigger the pipeline", "test the ca-cert jobs", "deploy to staging", "debug failed tests", "monitor until complete", "analyze failures". Specializes in multi-step operations (trigger → launch → monitor → analyze) with strategic CI/CD guidance.
 skills: managing-gitlab-pipelines
 model: sonnet
 color: yellow

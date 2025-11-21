@@ -1,6 +1,6 @@
 ---
 name: managing-gitlab-pipelines
-description: Manages GitLab CI/CD pipelines through automated triggering, batch job launching, real-time status monitoring, and parallel log collection. Supports pattern matching for selective operations, watch mode with progress tracking, and systematic failure analysis. Use for pipeline automation, deployment workflows, CI/CD troubleshooting, batch operations, and comprehensive log analysis across multiple jobs.
+description: Python-based GitLab API automation toolkit providing scripts for pipeline triggering, batch job launching, real-time monitoring, and parallel log collection. Supports pattern matching, watch mode with progress tracking, proper pagination, and systematic failure analysis. Technical foundation for CI/CD automation agents requiring direct GitLab API interactions and batch operations.
 allowed-tools: Bash, Read
 ---
 
