@@ -96,6 +96,12 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--watch-pattern",
+        type=str,
+        help="Job name pattern for targeted watch (stops when matching jobs reach terminal status)"
+    )
+
+    parser.add_argument(
         "--show-jobs",
         action="store_true",
         help="Show jobs list for pipeline monitoring"
@@ -296,6 +302,59 @@ def is_terminal_status(status):
     return status in terminal_statuses
 
 
+def check_pattern_completion(analyzer, pipeline_id, pattern):
+    """Check if all jobs matching a pattern have reached terminal status.
+
+    Args:
+        analyzer: PipelineAnalyzer instance
+        pipeline_id: Pipeline ID
+        pattern: Job name pattern (glob-style, e.g., 'ca-cert:*')
+
+    Returns:
+        Tuple of (all_complete: bool, stats: dict)
+        stats contains: {
+            'total': int,
+            'completed': int,
+            'terminal_jobs': list,
+            'non_terminal_jobs': list,
+            'error': str (optional, 'no_matches' if pattern matches nothing)
+        }
+    """
+    # Get jobs matching pattern
+    matching_jobs = analyzer.find_jobs_by_pattern(pipeline_id, pattern)
+
+    if not matching_jobs:
+        # No jobs match pattern - could be edge case
+        return False, {
+            'total': 0,
+            'completed': 0,
+            'terminal_jobs': [],
+            'non_terminal_jobs': [],
+            'error': 'no_matches'
+        }
+
+    # Check terminal status for each matching job
+    terminal_jobs = []
+    non_terminal_jobs = []
+
+    for job in matching_jobs:
+        if is_terminal_status(job.status):
+            terminal_jobs.append({'id': job.id, 'name': job.name, 'status': job.status})
+        else:
+            non_terminal_jobs.append({'id': job.id, 'name': job.name, 'status': job.status})
+
+    total = len(matching_jobs)
+    completed = len(terminal_jobs)
+    all_complete = (completed == total)
+
+    return all_complete, {
+        'total': total,
+        'completed': completed,
+        'terminal_jobs': terminal_jobs,
+        'non_terminal_jobs': non_terminal_jobs
+    }
+
+
 def main():
     """Main entry point."""
     args = parse_args()
@@ -369,9 +428,25 @@ def main():
 
             # Standard monitoring
             if args.watch:
-                print(f"👁️  Watching pipeline {args.pipeline} (refresh every {args.interval}s, Ctrl+C to stop)\n")
+                print(f"👁️  Watching pipeline {args.pipeline} (refresh every {args.interval}s, Ctrl+C to stop)")
+
+                # Pattern-aware watch setup
+                if args.watch_pattern:
+                    print(f"🎯 Pattern-aware watch: monitoring jobs matching '{args.watch_pattern}'")
+                    print(f"   Watch will stop when all matching jobs reach terminal status")
+
+                    # Initial pattern validation
+                    initial_matches = analyzer.find_jobs_by_pattern(args.pipeline, args.watch_pattern)
+                    if not initial_matches:
+                        print(f"⚠️  Warning: No jobs currently match pattern '{args.watch_pattern}'")
+                        print(f"   Watching for jobs to appear (pattern matching is dynamic)...")
+
+                print()  # blank line
+
                 iteration = 0
                 previous_jobs = None
+                no_match_iterations = 0  # Track iterations with no pattern matches
+
                 while True:
                     if iteration > 0:
                         # Clear screen for better readability
@@ -381,9 +456,66 @@ def main():
 
                     status, current_jobs = monitor_pipeline(analyzer, args.pipeline, show_jobs=args.show_jobs or args.watch, previous_jobs=previous_jobs)
 
-                    if is_terminal_status(status):
-                        print(f"\n✅ Pipeline reached terminal status: {status}")
-                        break
+                    # Check termination conditions
+                    if args.watch_pattern:
+                        # Pattern-aware termination
+                        all_complete, stats = check_pattern_completion(
+                            analyzer, args.pipeline, args.watch_pattern
+                        )
+
+                        if stats.get('error') == 'no_matches':
+                            no_match_iterations += 1
+                            if no_match_iterations >= 5:  # Give 5 iterations for jobs to appear
+                                print(f"\n⚠️  No jobs match pattern '{args.watch_pattern}' after {no_match_iterations} checks")
+                                print(f"   Stopping watch (pattern may be incorrect or jobs not yet created)")
+                                print(f"\n💡 Tip: Check available jobs with:")
+                                print(f"   ./scripts/monitor_status.py --pipeline {args.pipeline} --show-jobs")
+                                break
+                        elif all_complete:
+                            # All pattern-matching jobs are done!
+                            print(f"\n✅ All jobs matching '{args.watch_pattern}' completed!")
+                            print(f"   {stats['completed']}/{stats['total']} jobs reached terminal status")
+                            print(f"\n📊 Final Status Breakdown:")
+
+                            # Group by status
+                            status_groups = {}
+                            for job in stats['terminal_jobs']:
+                                job_status = job['status']
+                                if job_status not in status_groups:
+                                    status_groups[job_status] = []
+                                status_groups[job_status].append(job['name'])
+
+                            for job_status in sorted(status_groups.keys()):
+                                emoji = format_job_status_emoji(job_status)
+                                count = len(status_groups[job_status])
+                                print(f"   {emoji} {job_status}: {count} job(s)")
+                                for job_name in status_groups[job_status]:
+                                    print(f"      - {job_name}")
+
+                            # Note about non-matching jobs
+                            all_jobs = analyzer.get_all_jobs(args.pipeline)
+                            other_jobs = len(all_jobs) - stats['total']
+                            if other_jobs > 0:
+                                print(f"\nℹ️  Note: {other_jobs} other pipeline jobs are still running/pending")
+                                print(f"   Use --watch without --watch-pattern to monitor entire pipeline")
+
+                            break
+                        else:
+                            # Still waiting on some jobs
+                            no_match_iterations = 0  # Reset counter since we found matches
+                            print(f"\n🎯 Pattern Watch Progress: {stats['completed']}/{stats['total']} jobs complete")
+                            if stats['non_terminal_jobs']:
+                                print(f"   Still waiting on {len(stats['non_terminal_jobs'])} job(s):")
+                                for job in stats['non_terminal_jobs'][:5]:  # Show first 5
+                                    emoji = format_job_status_emoji(job['status'])
+                                    print(f"      {emoji} {job['name']} [{job['status']}]")
+                                if len(stats['non_terminal_jobs']) > 5:
+                                    print(f"      ... and {len(stats['non_terminal_jobs']) - 5} more")
+                    else:
+                        # Standard pipeline-level termination (existing behavior)
+                        if is_terminal_status(status):
+                            print(f"\n✅ Pipeline reached terminal status: {status}")
+                            break
 
                     # Update previous_jobs for next iteration
                     previous_jobs = current_jobs

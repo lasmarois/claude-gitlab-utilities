@@ -136,7 +136,47 @@ Always use `--auto` flag for automatic project resolution when user is in a git 
 - Recently changed jobs: status transitions between refreshes
 - Full job list: automatically enabled in watch mode
 
-### Pattern 2: Failed Jobs Investigation (RECOMMENDED)
+### Pattern 2: Targeted Job Launch and Monitor (NEW!)
+**User intent**: "Test the ca-cert jobs", "Run staging deployments", "Launch specific test suite"
+
+**Strategy**:
+1. Launch jobs with pattern matching
+2. **Use pattern-aware watch with SAME pattern** (`--watch-pattern`)
+3. Monitor shows only relevant jobs in "Pattern Watch Progress"
+4. Watch stops automatically when targeted jobs complete
+5. Report final status breakdown of pattern-matching jobs
+
+**Example**:
+```bash
+# User says: "Test the ca-cert integration"
+PIPELINE_ID=12345
+
+# 1. Launch ca-cert jobs
+./scripts/launch_jobs.py \
+  --pipeline $PIPELINE_ID --batch --pattern "ca-cert:*"
+
+# 2. Monitor with SAME pattern (stops when ca-cert jobs complete!)
+./scripts/monitor_status.py \
+  --pipeline $PIPELINE_ID --auto --watch --watch-pattern "ca-cert:*"
+# Stops in 1-2 minutes when 10 ca-cert jobs finish,
+# even though pipeline has 80+ other jobs still running!
+```
+
+**Key benefits**:
+- Agent recognizes task completion immediately
+- No waiting for unrelated manual/created jobs
+- Clear, targeted status reporting
+- Faster iteration cycles for developers
+
+**When to use**:
+- User mentions specific test suites, job categories, or deployment targets
+- User launched jobs with `--pattern`
+- User says "test the X jobs" or "run the Y suite"
+- ANY time pattern matching was used for launching
+
+**Critical**: Always match launch pattern with watch pattern for targeted monitoring!
+
+### Pattern 3: Failed Jobs Investigation (RECOMMENDED)
 **User intent**: "The pipeline failed, help me debug it"
 
 **Strategy**:
@@ -169,7 +209,7 @@ Always use `--auto` flag for automatic project resolution when user is in a git 
 - Status transitions are tracked automatically between refreshes
 - Running jobs display includes execution duration for spotting long-running jobs
 
-### Pattern 3: Test Suite Analysis
+### Pattern 4: Test Suite Analysis
 **User intent**: "Run all integration tests and analyze results"
 
 **Strategy**:
@@ -183,7 +223,7 @@ Always use `--auto` flag for automatic project resolution when user is in a git 
 - Include success rate metrics
 - Identify common failure patterns
 
-### Pattern 4: Stage-Specific Debugging
+### Pattern 5: Stage-Specific Debugging
 **User intent**: "Why are the deployment jobs failing?"
 
 **Strategy**:
@@ -196,7 +236,7 @@ Always use `--auto` flag for automatic project resolution when user is in a git 
 - Use `--stage` filter for focused collection
 - Compare with successful jobs in same stage
 
-### Pattern 5: Complete Pipeline Archive
+### Pattern 6: Complete Pipeline Archive
 **User intent**: "Archive all pipeline logs" or "Generate complete report"
 
 **Strategy**:
@@ -208,7 +248,7 @@ Use `--batch --all --aggregate --summary` for comprehensive collection
 - manifest.json - Programmatic access
 - Organized by-status and by-stage
 
-### Pattern 6: Comparative Analysis
+### Pattern 7: Comparative Analysis
 **User intent**: "Why does staging work but production fails?"
 
 **Strategy**:
@@ -414,6 +454,8 @@ Before providing analysis, verify:
 ## Communication Guidelines
 
 ### DO:
+- ✅ Use `--watch-pattern` when monitoring pattern-launched jobs (stops automatically!)
+- ✅ Match launch pattern with watch pattern for targeted monitoring
 - ✅ Use watch mode for real-time pipeline monitoring (auto-shows progress, running jobs, status changes)
 - ✅ Use batch mode for 2+ jobs (leverage parallel processing!)
 - ✅ Always include `--summary` with batch operations
@@ -429,6 +471,7 @@ Before providing analysis, verify:
 - ✅ Leverage watch mode's automatic progress tracking (no need for --show-jobs)
 
 ### DON'T:
+- ❌ Watch entire pipeline when user only cares about specific jobs (use --watch-pattern!)
 - ❌ Fetch logs individually when batch mode is appropriate (wastes time!)
 - ❌ Skip summary report analysis (loses key insights)
 - ❌ Provide generic advice without log evidence

@@ -399,9 +399,13 @@ sleep 10
 ./scripts/launch_jobs.py \
   --pipeline $PIPELINE_ID --batch --pattern "YOUR-PATTERN-*"
 
-# 4. Monitor progress (watch mode auto-enables job display and progress tracking)
+# 4. Monitor progress with pattern-aware watch (NEW - stops when YOUR jobs complete!)
 ./scripts/monitor_status.py \
-  --pipeline $PIPELINE_ID --auto --watch
+  --pipeline $PIPELINE_ID --auto --watch --watch-pattern "YOUR-PATTERN-*"
+
+# This stops automatically when all YOUR-PATTERN-* jobs complete,
+# even if the pipeline has 80+ other unrelated jobs still running.
+# Result: Watch stops in 1-2 minutes instead of waiting indefinitely!
 ```
 
 **Common Pattern Examples:**
@@ -535,6 +539,37 @@ diff \
 - Set appropriate `--interval` (default: 5s) to avoid API rate limits
 - Use Ctrl+C to stop watch mode gracefully
 - Watch mode provides real-time progress tracking with completion percentage and status breakdown
+
+### Pattern-Aware Monitoring (Smart Watch)
+
+When launching specific jobs by pattern, use `--watch-pattern` to automatically stop monitoring when those jobs complete:
+
+**Traditional approach (waits for entire pipeline)**:
+```bash
+./scripts/launch_jobs.py --pipeline 12345 --batch --pattern "test-*"
+./scripts/monitor_status.py --pipeline 12345 --auto --watch
+# Problem: Waits for all 80 pipeline jobs, not just the 10 test jobs!
+```
+
+**Smart approach (stops when pattern jobs complete)**:
+```bash
+./scripts/launch_jobs.py --pipeline 12345 --batch --pattern "test-*"
+./scripts/monitor_status.py --pipeline 12345 --auto --watch --watch-pattern "test-*"
+# Solution: Stops automatically when all test-* jobs complete (1-2 min)
+# Ignores other manual/created jobs you didn't launch!
+```
+
+**Benefits**:
+- ✅ Targeted monitoring - only track jobs you care about
+- ✅ Faster feedback - stops when YOUR jobs complete
+- ✅ Better agent UX - agent knows when the task is done
+- ✅ Works with all pattern types (prefix, suffix, wildcards)
+
+**Use cases**:
+- Testing specific suites: `--watch-pattern "integration:*"`
+- Environment deployments: `--watch-pattern "deploy-staging*"`
+- CA cert validation: `--watch-pattern "ca-cert:*"`
+- Any batch launch operation where you used `--pattern`
 
 ### Log Analysis
 - Use `--tail N` to limit output for long logs
