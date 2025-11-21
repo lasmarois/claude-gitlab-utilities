@@ -1,0 +1,20 @@
+{
+  "name": "gitlab-cicd-helper",
+  "version": "1.0.0",
+  "description": "Comprehensive GitLab CI/CD automation plugin for triggering pipelines, launching manual jobs, monitoring status, and retrieving logs",
+  "author": {
+    "name": "nmarois",
+    "email": "nmarois@example.com"
+  },
+  "homepage": "https://github.com/nmarois/claude-gitlab-utilities",
+  "repository": "https://github.com/nmarois/claude-gitlab-utilities",
+  "keywords": [
+    "gitlab",
+    "ci-cd",
+    "pipeline",
+    "automation",
+    "devops",
+    "deployment"
+  ],
+  "license": "MIT"
+}

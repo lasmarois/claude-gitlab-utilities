@@ -1,0 +1,19 @@
+{
+  "name": "claude-gitlab-utilities",
+  "owner": {
+    "name": "nmarois",
+    "email": "nmarois@example.com"
+  },
+  "metadata": {
+    "description": "GitLab automation utilities for Claude Code - CI/CD operations, pipeline management, and DevOps workflows",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "gitlab-cicd-helper",
+      "description": "Comprehensive GitLab CI/CD automation plugin for triggering pipelines, launching manual jobs, monitoring status, and retrieving logs",
+      "source": "./gitlab-cicd-helper",
+      "strict": false
+    }
+  ]
+}
