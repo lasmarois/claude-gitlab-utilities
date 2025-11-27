@@ -1,10 +1,12 @@
 ---
 name: managing-gitlab-mrs
-description: Go-based GitLab MR automation scripts for creating, listing, and updating merge requests. Technical foundation invoked by gitlab-mr-specialist agent. (plugin:gitlab-mr-helper@claude-gitlab-utilities)
+description: "Reference scripts for the GitLab MR Specialist agent. Contains Go-based GitLab MR automation. NOT for direct use - always use the gitlab-mr-helper:GitLab MR Specialist agent instead."
 allowed-tools: Bash, Read
 ---
 
 # Managing GitLab MRs
+
+> **Note:** This skill is a technical resource for the `GitLab MR Specialist` agent. Do not invoke directly - use the agent for MR operations.
 
 Go scripts for GitLab Merge Request operations.
 
