@@ -21,7 +21,7 @@ Go scripts for GitLab Merge Request operations.
 ## Script Location
 
 ```
-gitlab-mr-helper/skills/managing-gitlab-mrs/scripts/
+scripts/
 ```
 
 ## Usage
@@ -29,19 +29,19 @@ gitlab-mr-helper/skills/managing-gitlab-mrs/scripts/
 ### Create MR
 
 ```bash
-go run gitlab-mr-helper/skills/managing-gitlab-mrs/scripts/create_mr.go
+go run scripts/create_mr.go
 ```
 
 ### List MRs
 
 ```bash
-go run gitlab-mr-helper/skills/managing-gitlab-mrs/scripts/list_mrs.go
+go run scripts/list_mrs.go
 ```
 
 ### Update MR
 
 ```bash
-go run gitlab-mr-helper/skills/managing-gitlab-mrs/scripts/update_mr.go
+go run scripts/update_mr.go
 ```
 
 ## Current Status
