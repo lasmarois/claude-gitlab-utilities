@@ -1,6 +1,6 @@
 ---
 name: gitlab-cicd-yaml-reference
-description: "Comprehensive GitLab CI/CD reference for YAML syntax validation, pipeline architecture review, caching optimization, and troubleshooting. Load this skill when analyzing .gitlab-ci.yml files, reviewing pipeline configurations, validating rules/workflow syntax, or providing CI/CD best practices guidance. Invoked by gitlab-cicd-architect agent."
+description: "REQUIRED reference for validating GitLab CI/CD YAML syntax and providing accurate recommendations. Contains authoritative documentation on keywords, rules, workflow, DAG pipelines, caching strategies, and troubleshooting patterns. MUST be loaded before analyzing .gitlab-ci.yml files or reviewing pipeline configurations to ensure recommendations follow current GitLab best practices."
 ---
 
 # GitLab CI/CD YAML Reference
