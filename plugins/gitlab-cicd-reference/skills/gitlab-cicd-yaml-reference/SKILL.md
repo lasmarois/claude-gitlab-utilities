@@ -1,11 +1,11 @@
 ---
 name: gitlab-cicd-yaml-reference
-description: "Reference documentation for the gitlab-cicd-architect agent. Contains YAML syntax, pipeline architecture, caching strategies, optimization patterns, variables reference, and troubleshooting guides. NOT for direct use - always use the gitlab-cicd-architect agent instead."
+description: "Comprehensive GitLab CI/CD reference for YAML syntax validation, pipeline architecture review, caching optimization, and troubleshooting. Load this skill when analyzing .gitlab-ci.yml files, reviewing pipeline configurations, validating rules/workflow syntax, or providing CI/CD best practices guidance. Invoked by gitlab-cicd-architect agent."
 ---
 
 # GitLab CI/CD YAML Reference
 
-> **Note:** This skill is a reference library for the `gitlab-cicd-architect` agent. Do not invoke directly - use the agent for GitLab CI/CD tasks.
+> **Note:** This skill is invoked by the `gitlab-cicd-architect` agent to provide comprehensive reference documentation.
 
 This skill provides comprehensive reference documentation for advanced GitLab CI/CD configuration, pipeline architecture, and optimization patterns.
 
