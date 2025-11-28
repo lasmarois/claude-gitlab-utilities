@@ -1,6 +1,6 @@
 ---
 name: managing-gitlab-pipelines
-description: "Reference scripts and documentation for the gitlab-cicd-specialist agent. Contains Python-based GitLab API automation for pipeline operations. NOT for direct use - always use the gitlab-cicd-specialist agent instead."
+description: "REQUIRED Python scripts for GitLab CI/CD pipeline automation. MUST be loaded before triggering pipelines, launching manual jobs, monitoring pipeline status, or collecting job logs. Contains authoritative documentation on batch operations, pattern matching, watch mode, and failure analysis workflows. Invoked by gitlab-cicd-specialist agent."
 allowed-tools: Bash, Read
 ---
 
