@@ -20,7 +20,7 @@ Comprehensive GitLab CI/CD automation with intelligent workflow orchestration.
 - Auto project resolution from git remotes
 - Standard GitLab authentication (GITLAB_TOKEN, .netrc, .git-credentials)
 
-**Documentation**: [gitlab-cicd-helper/README.md](gitlab-cicd-helper/README.md)
+**Documentation**: [plugins/gitlab-cicd-helper/README.md](plugins/gitlab-cicd-helper/README.md)
 
 ## Installation
 

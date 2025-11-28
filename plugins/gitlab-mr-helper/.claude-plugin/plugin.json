@@ -1,0 +1,13 @@
+{
+  "name": "gitlab-mr-helper",
+  "version": "0.1.0",
+  "description": "GitLab Merge Request management plugin for creating, listing, and updating MRs",
+  "author": {
+    "name": "Nicolas Marois",
+    "email": "mail@nicomarois.com"
+  },
+  "homepage": "https://github.com/lasmarois/claude-gitlab-utilities",
+  "repository": "https://github.com/lasmarois/claude-gitlab-utilities",
+  "keywords": ["gitlab", "merge-request", "mr", "code-review", "automation"],
+  "license": "MIT"
+}
