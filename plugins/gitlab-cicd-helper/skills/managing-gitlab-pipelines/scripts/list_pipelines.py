@@ -275,7 +275,14 @@ def main():
 
         if not pipelines:
             if args.latest:
-                print("")  # Empty output for scripting
+                # For scripting - output error to stderr so caller knows it failed
+                import sys
+                print("⚠️  No pipelines found matching criteria", file=sys.stderr)
+                if args.ref:
+                    print(f"   Filtered by ref: {args.ref}", file=sys.stderr)
+                if args.status:
+                    print(f"   Filtered by status: {args.status}", file=sys.stderr)
+                print(f"\n💡 Try without filters: ./scripts/list_pipelines.py --auto", file=sys.stderr)
                 return 1
             elif args.json:
                 print("[]")
@@ -284,6 +291,15 @@ def main():
                 return 0
             else:
                 print("⚠️  No pipelines found matching criteria")
+                if args.ref:
+                    print(f"   Filtered by ref: {args.ref}")
+                if args.status:
+                    print(f"   Filtered by status: {args.status}")
+                if args.source:
+                    print(f"   Filtered by source: {args.source}")
+                if args.username:
+                    print(f"   Filtered by username: {args.username}")
+                print(f"\n💡 Try without filters: ./scripts/list_pipelines.py --auto")
                 return 0
 
         # Output based on format
@@ -364,10 +380,19 @@ def main():
 
             return 0
 
+    except ValueError as e:
+        # Authentication or configuration errors - always print to stderr
+        # so Claude can see them even in --quiet/--latest/--json modes
+        import sys
+        print(str(e), file=sys.stderr)
+        return 1
+
     except Exception as e:
-        print(f"❌ Failed to list pipelines: {e}")
+        # Other errors - print with traceback for debugging
+        import sys
+        print(f"❌ Failed to list pipelines: {e}", file=sys.stderr)
         import traceback
-        traceback.print_exc()
+        traceback.print_exc(file=sys.stderr)
         return 1
 
 
