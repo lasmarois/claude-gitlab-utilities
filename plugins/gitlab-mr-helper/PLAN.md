@@ -1,18 +1,18 @@
 # GitLab MR Helper - Development Plan
 
-## Current Phase: Demo/Placeholder
+## Current Phase: Phase 1 Complete
 
-Demo Go scripts that print placeholder output. No actual GitLab API integration yet.
+Go scripts with full GitLab API v4 integration for MR management.
 
 ## Roadmap
 
-### Phase 1: Core MR Operations (Current)
+### Phase 1: Core MR Operations ✅
 - [x] Plugin structure created
-- [x] Demo scripts (placeholder output)
-- [ ] GitLab API authentication
-- [ ] Create MR functionality
-- [ ] List MRs functionality
-- [ ] Update MR functionality
+- [x] GitLab API authentication (GITLAB_TOKEN, .netrc, .git-credentials)
+- [x] Auto project resolution from git remote
+- [x] Create MR functionality
+- [x] List MRs functionality
+- [x] Update MR functionality
 
 ### Phase 2: Enhanced Features
 - [ ] MR templates support
@@ -27,11 +27,11 @@ Demo Go scripts that print placeholder output. No actual GitLab API integration 
 - [ ] Conflict detection
 - [ ] Cross-project MRs
 
-## API Integration Notes
+## API Integration
 
-Future scripts will use GitLab REST API v4:
-- Base URL: `https://gitlab.example.com/api/v4`
-- Authentication: Private token or OAuth
+Scripts use GitLab REST API v4:
+- Base URL: `https://gitlab.com/api/v4` (or GITLAB_URL)
+- Authentication: Private token via GITLAB_TOKEN, .netrc, or .git-credentials
 - Key endpoints:
   - `POST /projects/:id/merge_requests` - Create MR
   - `GET /projects/:id/merge_requests` - List MRs
@@ -40,7 +40,7 @@ Future scripts will use GitLab REST API v4:
 ## Architecture
 
 ```
-gitlab-mr-helper/
+plugins/gitlab-mr-helper/
 ├── .claude-plugin/plugin.json     # Plugin metadata
 ├── PLAN.md                        # This file
 ├── README.md                      # Usage documentation
@@ -50,6 +50,10 @@ gitlab-mr-helper/
     └── managing-gitlab-mrs/
         ├── SKILL.md               # Skill (invoked by agent only)
         └── scripts/
+            ├── go.mod             # Go module definition
+            ├── lib/
+            │   ├── api.go         # GitLab API client
+            │   └── config.go      # Configuration/auth handling
             ├── create_mr.go       # Create MR
             ├── list_mrs.go        # List MRs
             └── update_mr.go       # Update MR
@@ -59,5 +63,6 @@ gitlab-mr-helper/
 
 1. **Agent as Entry Point**: The agent is the only user-facing component
 2. **Skill for Implementation**: The skill provides technical capabilities, invoked only by the agent
-3. **Go Scripts**: Lightweight, compiled scripts for GitLab API operations
-4. **Incremental Development**: Start with demos, add real API calls progressively
+3. **Go Scripts**: Lightweight scripts using standard library only (no external dependencies)
+4. **Standard Auth**: Same authentication as official GitLab tools
+5. **Auto Resolution**: `--auto` flag for seamless project detection
