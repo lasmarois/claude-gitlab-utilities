@@ -55,10 +55,16 @@ class GitLabConfig:
             ).strip()
 
             # Parse domain from HTTPS or SSH URL
-            if match := re.match(r'https://([^/]+)/', remote_url):
-                return f"https://{match.group(1)}"
+            # Handle URLs with embedded credentials: https://user:token@domain/path
+            if match := re.match(r'https://(?:[^@]+@)?([^/]+)/', remote_url):
+                domain = match.group(1)
+                # Skip github.com - it's not a GitLab server
+                if domain.lower() != "github.com":
+                    return f"https://{domain}"
             elif match := re.match(r'git@([^:]+):', remote_url):
-                return f"https://{match.group(1)}"
+                domain = match.group(1)
+                if domain.lower() != "github.com":
+                    return f"https://{domain}"
         except:
             pass
 
@@ -128,6 +134,23 @@ class GitLabConfig:
                                 if token:
                                     return token.strip()
         except (FileNotFoundError, PermissionError):
+            pass
+
+        # 5. Check git remote URL for embedded credentials
+        try:
+            import subprocess
+            remote_url = subprocess.check_output(
+                ["git", "remote", "get-url", "origin"],
+                text=True,
+                stderr=subprocess.PIPE
+            ).strip()
+
+            # Format: https://username:token@domain/path
+            if match := re.match(rf'https://[^:]+:([^@]+)@{re.escape(domain)}', remote_url):
+                token = match.group(1)
+                if token:
+                    return token.strip()
+        except:
             pass
 
         # No token found - provide helpful error message
