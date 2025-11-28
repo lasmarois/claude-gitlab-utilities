@@ -1,0 +1,24 @@
+{
+  "name": "gitlab-cicd-reference",
+  "version": "1.0.0",
+  "description": "Expert knowledge for GitLab CI/CD YAML configuration, pipeline architecture, caching strategies, and optimization patterns. Provides a specialized subagent and comprehensive skill for advanced .gitlab-ci.yml development.",
+  "author": {
+    "name": "Nicolas Marois",
+    "email": "mail@nicomarois.com"
+  },
+  "homepage": "https://github.com/lasmarois/claude-gitlab-utilities",
+  "repository": "https://github.com/lasmarois/claude-gitlab-utilities",
+  "license": "MIT",
+  "keywords": [
+    "gitlab",
+    "ci-cd",
+    "yaml",
+    "pipeline",
+    "devops",
+    "automation",
+    "caching",
+    "artifacts",
+    "dag",
+    "multi-project"
+  ]
+}

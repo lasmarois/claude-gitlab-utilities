@@ -14,6 +14,12 @@
       "description": "Comprehensive GitLab CI/CD automation plugin for triggering pipelines, launching manual jobs, monitoring status, and retrieving logs",
       "source": "./gitlab-cicd-helper",
       "strict": false
+    },
+    {
+      "name": "gitlab-mr-helper",
+      "description": "GitLab Merge Request management plugin for creating, listing, and updating MRs",
+      "source": "./gitlab-mr-helper",
+      "strict": false
     }
   ]
 }
