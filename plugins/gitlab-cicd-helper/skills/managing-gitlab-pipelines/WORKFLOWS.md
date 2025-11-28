@@ -1,12 +1,99 @@
 # Common Workflows
 
 ## Contents
+- [Find and Work with Existing Pipelines](#workflow-0-find-and-work-with-existing-pipelines)
 - [Trigger and Monitor Pipeline](#workflow-1-trigger-and-monitor-pipeline)
 - [Trigger with Variables and Launch Manual Jobs](#workflow-2-trigger-with-variables-and-launch-manual-jobs)
 - [Batch Launch Jobs by Pattern](#workflow-3-batch-launch-jobs-by-pattern)
 - [Troubleshoot Failed Jobs](#workflow-4-troubleshoot-failed-jobs)
 - [Batch Log Collection and Analysis](#workflow-5-batch-log-collection-and-analysis)
 - [Best Practices](#best-practices)
+
+## Workflow 0: Find and Work with Existing Pipelines
+
+**When user says:** "Show me recent pipelines", "Find the failed pipeline", "What's the status of the latest pipeline", "List pipelines on main branch", "Debug the pipeline that ran earlier"
+
+### Scenario 1: Find recent pipelines
+
+```bash
+cd /path/to/repo
+
+# List recent pipelines (default: 10)
+./scripts/list_pipelines.py --auto
+
+# Output:
+# ================================================================================
+# 📋 Recent Pipelines
+# ================================================================================
+#
+# ✅ Pipeline #12345
+#    Branch: main
+#    Status: success
+#    Created: 2h ago
+#    🔗 https://gitlab.com/group/project/-/pipelines/12345
+#
+# ❌ Pipeline #12344
+#    Branch: main
+#    Status: failed
+#    Created: 5h ago
+#
+# 💡 Quick actions for latest pipeline #12345:
+#    Monitor:  ./scripts/monitor_status.py --pipeline 12345 --auto --watch
+#    Jobs:     ./scripts/launch_jobs.py --pipeline 12345 --auto --batch
+#    Logs:     ./scripts/get_logs.py --pipeline 12345 --auto --batch --failed-only --summary
+```
+
+### Scenario 2: Find and debug a failed pipeline
+
+```bash
+cd /path/to/repo
+
+# Find failed pipelines on main branch
+./scripts/list_pipelines.py --auto --status failed --ref main
+
+# Pick the pipeline ID from the list and investigate
+PIPELINE_ID=12344
+
+# Check status and jobs
+./scripts/monitor_status.py --pipeline $PIPELINE_ID --auto --show-jobs
+
+# Get failed job logs
+./scripts/get_logs.py --pipeline $PIPELINE_ID --batch --failed-only --summary --auto
+```
+
+### Scenario 3: Work with the latest pipeline (scripting)
+
+```bash
+cd /path/to/repo
+
+# Get the latest pipeline ID directly
+PIPELINE_ID=$(./scripts/list_pipelines.py --auto --latest)
+
+# Now use it with other scripts
+./scripts/monitor_status.py --pipeline $PIPELINE_ID --auto --watch
+./scripts/launch_jobs.py --pipeline $PIPELINE_ID --batch --pattern "test-*"
+```
+
+### Scenario 4: Filter pipelines by multiple criteria
+
+```bash
+cd /path/to/repo
+
+# Find running pipelines
+./scripts/list_pipelines.py --auto --status running
+
+# Find scheduled pipelines
+./scripts/list_pipelines.py --auto --source schedule
+
+# Find pipelines triggered by specific user
+./scripts/list_pipelines.py --auto --username john.doe
+
+# Combine filters
+./scripts/list_pipelines.py --auto --status failed --ref main --limit 5
+
+# JSON output for scripting
+./scripts/list_pipelines.py --auto --status failed --json | jq '.[0].id'
+```
 
 ## Workflow 1: Trigger and Monitor Pipeline
 

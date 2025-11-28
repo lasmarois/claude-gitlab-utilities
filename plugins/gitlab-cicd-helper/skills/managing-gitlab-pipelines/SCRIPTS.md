@@ -1,11 +1,110 @@
 # Script Reference
 
 ## Contents
+- [list_pipelines.py](#list_pipelinespy)
 - [trigger_pipeline.py](#trigger_pipelinepy)
 - [launch_jobs.py](#launch_jobspy)
 - [monitor_status.py](#monitor_statuspy)
 - [get_logs.py](#get_logspy)
 - [Job Status Types](#job-status-types)
+
+## list_pipelines.py
+
+List and find existing pipelines for a project.
+
+### Basic Usage
+
+**List recent pipelines:**
+```bash
+cd /path/to/repo
+./scripts/list_pipelines.py --auto
+```
+
+**List pipelines on specific branch:**
+```bash
+./scripts/list_pipelines.py --auto --ref main
+```
+
+**List failed pipelines:**
+```bash
+./scripts/list_pipelines.py --auto --status failed
+```
+
+**Get the latest pipeline ID (for scripting):**
+```bash
+PIPELINE_ID=$(./scripts/list_pipelines.py --auto --latest)
+./scripts/monitor_status.py --pipeline $PIPELINE_ID --auto --watch
+```
+
+**List more pipelines:**
+```bash
+./scripts/list_pipelines.py --auto --limit 20
+```
+
+### Output Example
+
+```
+================================================================================
+📋 Recent Pipelines
+================================================================================
+
+✅ Pipeline #12345
+   Branch: main
+   Status: success
+   Commit: a1b2c3d4
+   Source: push
+   Created: 2h ago
+   🔗 https://gitlab.com/group/project/-/pipelines/12345
+
+❌ Pipeline #12344
+   Branch: main
+   Status: failed
+   Commit: e5f6g7h8
+   Source: push
+   Created: 5h ago
+   🔗 https://gitlab.com/group/project/-/pipelines/12344
+
+▶️ Pipeline #12340
+   Branch: feature-x
+   Status: running
+   Commit: i9j0k1l2
+   Source: web
+   Created: 1d ago
+   🔗 https://gitlab.com/group/project/-/pipelines/12340
+
+================================================================================
+Total: 3 pipeline(s)
+
+💡 Quick actions for latest pipeline #12345:
+   Monitor:  ./scripts/monitor_status.py --pipeline 12345 --auto --watch
+   Jobs:     ./scripts/launch_jobs.py --pipeline 12345 --auto --batch
+   Logs:     ./scripts/get_logs.py --pipeline 12345 --auto --batch --failed-only --summary
+================================================================================
+```
+
+### Options
+
+**Filters:**
+- `--auto`: Auto-detect project from git remote (recommended)
+- `--project ID`: Explicit project ID or path
+- `--limit N`: Maximum pipelines to list (default: 10)
+- `--ref REF`: Filter by branch or tag name
+- `--status STATUS`: Filter by status (created, pending, running, success, failed, canceled, skipped, manual, scheduled)
+- `--source SOURCE`: Filter by source (push, web, trigger, schedule, api, merge_request_event, etc.)
+- `--username USER`: Filter by username who triggered the pipeline
+
+**Output formats:**
+- `--latest`: Output only the latest pipeline ID (for scripting)
+- `--json`: Output in JSON format
+- `--quiet, -q`: Output only pipeline IDs, one per line
+
+### Best Practices
+
+- Use `--latest` to get pipeline ID for piping to other scripts
+- Use `--status failed` to quickly find pipelines that need attention
+- Use `--ref main` to focus on production branch pipelines
+- Combine filters: `--status failed --ref main --limit 5`
+- Use `--json` for programmatic processing
 
 ## trigger_pipeline.py
 

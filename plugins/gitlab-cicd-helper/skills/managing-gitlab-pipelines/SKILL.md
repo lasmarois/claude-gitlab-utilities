@@ -12,15 +12,30 @@ GitLab CI/CD operations providing comprehensive pipeline management through effi
 
 ## Core Capabilities
 
-1. **Pipeline Triggering**: Start pipelines with variables/inputs on any branch
-2. **Manual Job Launching**: Trigger manual/delayed jobs (single or batch operations)
-3. **Status Monitoring**: Real-time pipeline and job status with optional watch mode
-4. **Log Retrieval**: Download and analyze job traces with filtering
-5. **Auto Project Resolution**: Automatically determine project IDs from git remotes
-6. **Pipeline Intelligence**: Full pipeline awareness with proper pagination (finds ALL jobs!)
-7. **Config Analysis**: Compare .gitlab-ci.yml configuration vs actual pipeline state
+1. **Pipeline Discovery**: List and find existing pipelines by status, branch, or source
+2. **Pipeline Triggering**: Start pipelines with variables/inputs on any branch
+3. **Manual Job Launching**: Trigger manual/delayed jobs (single or batch operations)
+4. **Status Monitoring**: Real-time pipeline and job status with optional watch mode
+5. **Log Retrieval**: Download and analyze job traces with filtering
+6. **Auto Project Resolution**: Automatically determine project IDs from git remotes
+7. **Pipeline Intelligence**: Full pipeline awareness with proper pagination (finds ALL jobs!)
+8. **Config Analysis**: Compare .gitlab-ci.yml configuration vs actual pipeline state
 
 ## Quick Start
+
+### List Pipelines
+```bash
+cd /path/to/repo
+
+# List recent pipelines
+./scripts/list_pipelines.py --auto
+
+# List failed pipelines
+./scripts/list_pipelines.py --auto --status failed
+
+# Get latest pipeline ID (for scripting)
+./scripts/list_pipelines.py --auto --latest
+```
 
 ### Trigger Pipeline
 ```bash
@@ -66,6 +81,7 @@ See [SETUP.md](SETUP.md) for:
 
 ### Complete Script Reference
 See [SCRIPTS.md](SCRIPTS.md) for:
+- **list_pipelines.py**: List and find existing pipelines
 - **trigger_pipeline.py**: Trigger pipelines with variables
 - **launch_jobs.py**: Launch manual jobs (single or batch)
 - **monitor_status.py**: Monitor status with watch mode
@@ -74,6 +90,7 @@ See [SCRIPTS.md](SCRIPTS.md) for:
 
 ### Common Workflows
 See [WORKFLOWS.md](WORKFLOWS.md) for:
+- **Find and Work with Existing Pipelines**: List, select, and operate on pipelines
 - **Trigger and Monitor**: Start pipeline and watch progress
 - **Variables and Manual Jobs**: Deploy to environments
 - **Batch Launch by Pattern**: Run specific job sets
@@ -172,6 +189,23 @@ Organized log retrieval with analysis:
 - Use `--aggregate` for single-file analysis
 
 ## Common Patterns
+
+### Work with Existing Pipeline
+```bash
+cd /path/to/repo
+
+# 1. List recent pipelines to find the one you want
+./scripts/list_pipelines.py --auto
+
+# 2. Or find specific pipeline (failed, on main branch, etc.)
+./scripts/list_pipelines.py --auto --status failed --ref main
+
+# 3. Work with the pipeline using its ID
+PIPELINE_ID=12345
+./scripts/monitor_status.py --pipeline $PIPELINE_ID --auto --show-jobs
+./scripts/launch_jobs.py --pipeline $PIPELINE_ID --batch --pattern "test-*"
+./scripts/get_logs.py --pipeline $PIPELINE_ID --batch --failed-only --summary --auto
+```
 
 ### End-to-End: Trigger → Launch → Monitor → Logs
 ```bash
