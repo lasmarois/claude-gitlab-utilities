@@ -1,12 +1,12 @@
 ---
 name: managing-gitlab-pipelines
-description: "Reference scripts and documentation for the GitLab CI/CD Specialist agent. Contains Python-based GitLab API automation for pipeline operations. NOT for direct use - always use the gitlab-cicd-helper:GitLab CI/CD Specialist agent instead."
+description: "Reference scripts and documentation for the gitlab-cicd-specialist agent. Contains Python-based GitLab API automation for pipeline operations. NOT for direct use - always use the gitlab-cicd-specialist agent instead."
 allowed-tools: Bash, Read
 ---
 
 # Managing GitLab Pipelines
 
-> **Note:** This skill is a technical resource for the `GitLab CI/CD Specialist` agent. Do not invoke directly - use the agent for pipeline operations.
+> **Note:** This skill is a reference library for the `gitlab-cicd-specialist` agent. Do not invoke directly - use the agent for pipeline operations.
 
 GitLab CI/CD operations providing comprehensive pipeline management through efficient Python scripts.
 

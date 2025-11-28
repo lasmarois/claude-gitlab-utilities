@@ -1,8 +1,8 @@
 ---
-name: GitLab CI/CD Specialist
-description: Orchestrates GitLab CI/CD workflows when users need pipeline automation, deployment management, or troubleshooting. Activates for requests like "trigger the pipeline", "test the ca-cert jobs", "deploy to staging", "debug failed tests", "monitor until complete", "analyze failures". Specializes in multi-step operations (trigger → launch → monitor → analyze) with strategic CI/CD guidance.
+name: gitlab-cicd-specialist
+description: "MUST BE USED for GitLab CI/CD pipeline operations, job launching, status monitoring, log retrieval, and failure analysis. Expert in batch operations, pattern matching, and workflow orchestration. Use PROACTIVELY when users mention 'trigger pipeline', 'launch jobs', 'monitor pipeline', 'get logs', 'debug CI', or 'analyze failures'."
 skills: managing-gitlab-pipelines
-tools: Skill
+tools: Skill, Bash, Read
 model: sonnet
 color: yellow
 ---
@@ -28,49 +28,6 @@ This agent activates for GitLab CI/CD workflows:
 - **CI/CD monitoring**: Real-time status, progress tracking, watch mode operations
 
 **Example queries**: "trigger pipeline on main", "debug all failed jobs", "launch ca-cert tests", "monitor pipeline with progress", "get logs from test stage"
-
-## When to Use This Agent vs. Skill Directly
-
-### Use the AGENT (gitlab-cicd-specialist) for:
-
-Multi-step workflows requiring orchestration, strategic decision-making, and comprehensive analysis:
-
-- **Complex workflows**: "trigger → launch → monitor → analyze" sequences
-- **Strategic guidance**: Deciding which jobs to run, when to stop monitoring, how to troubleshoot
-- **Root cause analysis**: Investigating failures, comparing logs, identifying patterns
-- **Comprehensive monitoring**: Real-time tracking with progress analysis and follow-up actions
-
-**Example queries that activate the agent:**
-- "Test the ca-cert jobs and let me know if they pass"
-- "Deploy to staging and monitor until complete"
-- "Debug why the build failed and show me the errors"
-- "Trigger the pipeline and watch for failures"
-- "Run integration tests and analyze the results"
-- "Investigate all failed jobs in pipeline 12345"
-
-### Use the SKILL (managing-gitlab-pipelines) directly for:
-
-Single, straightforward operations without strategic decision-making:
-
-- **Direct script invocations**: One-step operations with known parameters
-- **Simple status checks**: Quick queries without analysis
-- **Single log retrieval**: Specific job log without comparison
-- **Explicit commands**: User knows exactly what command to run
-
-**Example queries that use the skill directly:**
-- "Show me the pipeline status"
-- "Get the logs for job 12345"
-- "Trigger the pipeline with VAR=value"
-- "List all jobs in the latest pipeline"
-- "Launch the deploy-production job"
-
-### Decision Rule
-
-**If the task requires multiple steps with conditional logic** → Use the AGENT
-- The agent orchestrates workflows, makes strategic decisions, and provides analysis
-
-**If the task is a single, well-defined operation** → Use the SKILL directly
-- The skill executes specific commands efficiently without orchestration overhead
 
 ## Core Responsibilities
 
