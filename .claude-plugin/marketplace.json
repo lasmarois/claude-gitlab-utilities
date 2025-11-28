@@ -12,13 +12,19 @@
     {
       "name": "gitlab-cicd-helper",
       "description": "Comprehensive GitLab CI/CD automation plugin for triggering pipelines, launching manual jobs, monitoring status, and retrieving logs",
-      "source": "./gitlab-cicd-helper",
+      "source": "./plugins/gitlab-cicd-helper",
       "strict": false
     },
     {
       "name": "gitlab-mr-helper",
       "description": "GitLab Merge Request management plugin for creating, listing, and updating MRs",
-      "source": "./gitlab-mr-helper",
+      "source": "./plugins/gitlab-mr-helper",
+      "strict": false
+    },
+    {
+      "name": "gitlab-cicd-reference",
+      "description": "Expert knowledge for GitLab CI/CD YAML configuration, pipeline architecture, caching strategies, and optimization patterns. Provides a specialized subagent and comprehensive skill for advanced .gitlab-ci.yml development.",
+      "source": "./plugins/gitlab-cicd-reference",
       "strict": false
     }
   ]
