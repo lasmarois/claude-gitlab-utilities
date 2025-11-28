@@ -1,6 +1,6 @@
 # Claude GitLab Utilities
 
-GitLab CI/CD automation plugin marketplace for Claude Code. Trigger pipelines, launch jobs, monitor status, and retrieve logs using natural language.
+GitLab automation plugin marketplace for Claude Code. Manage pipelines, merge requests, and CI/CD configuration using natural language.
 
 ## Available Plugins
 
@@ -9,18 +9,55 @@ GitLab CI/CD automation plugin marketplace for Claude Code. Trigger pipelines, l
 Comprehensive GitLab CI/CD automation with intelligent workflow orchestration.
 
 **Components:**
-- **Skill** (`managing-gitlab-pipelines`): Python scripts for pipeline operations, job launching, monitoring, and log retrieval
 - **Agent** (`gitlab-cicd-specialist`): Orchestrates complex multi-step workflows with strategic guidance and failure analysis
+- **Skill** (`managing-gitlab-pipelines`): Python scripts for pipeline operations, job launching, monitoring, and log retrieval
 
 **Key Features:**
 - Pipeline triggering with variables on any branch
 - Batch job launching with pattern matching
 - Real-time monitoring with progress tracking and pattern-aware termination
 - Parallel log collection with organized output and summary reports
-- Auto project resolution from git remotes
-- Standard GitLab authentication (GITLAB_TOKEN, .netrc, .git-credentials)
 
 **Documentation**: [plugins/gitlab-cicd-helper/README.md](plugins/gitlab-cicd-helper/README.md)
+
+---
+
+### gitlab-cicd-reference
+
+Expert knowledge for GitLab CI/CD YAML configuration and pipeline architecture.
+
+**Components:**
+- **Agent** (`gitlab-cicd-architect`): Expert in YAML configuration, DAG optimization, caching strategies, and troubleshooting
+- **Skill** (`gitlab-cicd-yaml-reference`): Comprehensive reference documentation for .gitlab-ci.yml
+
+**Key Features:**
+- YAML syntax and job configuration reference
+- DAG pipelines and parallel execution patterns
+- Caching strategies and artifact management
+- DRY patterns with extends, anchors, includes, !reference
+- Variables reference and troubleshooting guides
+
+**Documentation**: [plugins/gitlab-cicd-reference/README.md](plugins/gitlab-cicd-reference/README.md)
+
+---
+
+### gitlab-mr-helper
+
+GitLab Merge Request management with full API integration.
+
+**Components:**
+- **Agent** (`gitlab-mr-specialist`): Expert in MR workflows, descriptions, labels, and reviewers
+- **Skill** (`managing-gitlab-mrs`): Go scripts for MR creation, listing, and updates
+
+**Key Features:**
+- Create MRs with automatic branch detection and title generation
+- List MRs with status icons, labels, and age formatting
+- Update MR title, description, labels, or close/reopen
+- Auto project resolution from git remotes
+
+**Documentation**: [plugins/gitlab-mr-helper/README.md](plugins/gitlab-mr-helper/README.md)
+
+---
 
 ## Installation
 
@@ -29,12 +66,14 @@ Comprehensive GitLab CI/CD automation with intelligent workflow orchestration.
 ```bash
 /plugin marketplace add lasmarois/claude-gitlab-utilities
 /plugin install gitlab-cicd-helper@claude-gitlab-utilities
+/plugin install gitlab-cicd-reference@claude-gitlab-utilities
+/plugin install gitlab-mr-helper@claude-gitlab-utilities
 ```
 
 ### Local Development
 
 ```bash
-git clone https://github.com/nmarois/claude-gitlab-utilities.git ~/dev/claude-gitlab-utilities
+git clone https://github.com/lasmarois/claude-gitlab-utilities.git ~/dev/claude-gitlab-utilities
 /plugin marketplace add ~/dev/claude-gitlab-utilities
 /plugin install gitlab-cicd-helper@claude-gitlab-utilities
 ```
@@ -67,27 +106,18 @@ Set permissions: `chmod 600 ~/.git-credentials`
 - Required scope: `api`
 - Optional: Set `GITLAB_URL` environment variable to override default GitLab instance
 
-**Optional: Project-Specific Trigger Token**
-
-For project-specific pipeline triggering, create `.gitlab-trigger-token`:
-
-```bash
-echo 'glptt-xxxxxxxxxxxxxxxxxxxxx' > .gitlab-trigger-token
-chmod 600 .gitlab-trigger-token
-echo '.gitlab-trigger-token' >> .gitignore
-```
-
-Create trigger tokens at: Project Settings → CI/CD → Pipeline triggers
-
 ## Usage
 
 Use natural language commands in Claude Code:
 
 ```
-"Trigger a pipeline on the main branch for this project"
+"Trigger a pipeline on the main branch"
 "Launch all manual jobs matching pattern deploy-*"
-"Monitor the latest pipeline until it completes"
-"Get the logs for job 67890 and filter for ERROR"
+"Monitor the pipeline until it completes"
+"Get the logs for failed jobs"
+"Help me configure a DAG pipeline"
+"Create a merge request for my current branch"
+"List my open merge requests"
 ```
 
 ## Contributing

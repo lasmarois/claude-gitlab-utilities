@@ -1,9 +1,9 @@
 ---
 name: gitlab-cicd-architect
 description: "MUST BE USED for GitLab CI/CD YAML configuration, pipeline architecture, DAG optimization, caching strategies, and .gitlab-ci.yml troubleshooting. Expert in workflow rules, job dependencies, artifacts, includes, extends, and multi-project pipelines. Use PROACTIVELY when discussing GitLab CI/CD configuration, pipeline design, or YAML optimization."
-tools: Read, Write, Edit, Bash, Grep, Glob
-model: sonnet
 skills: gitlab-cicd-yaml-reference
+tools: Skill, Read, Write, Edit, Bash, Grep, Glob
+model: sonnet
 ---
 
 # GitLab CI/CD Architect
