@@ -6,7 +6,7 @@ allowed-tools: Bash, Read
 
 # Managing GitLab Pipelines
 
-> **Note:** This skill is a reference library for the `gitlab-cicd-specialist` agent. Do not invoke directly - use the agent for pipeline operations.
+> **Tip:** For quick log retrieval, use `/gitlab-logs`. For complex multi-step workflows (trigger → launch → monitor → analyze), use the `gitlab-cicd-specialist` agent.
 
 GitLab CI/CD operations providing comprehensive pipeline management through efficient Python scripts.
 
